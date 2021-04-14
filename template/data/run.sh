@@ -29,12 +29,18 @@ if bashio::config.true 'cloudflare'; then
     fi
 fi
 
-if [ -n "$DEFAULT_CONF" ]; then
-    sed -i "s|#include /share/default.conf|include /share/$DEFAULT_CONF;|" /etc/nginx.conf
+if [ -n "${DEFAULT_CONF}" ]; then
+    cp "/share/${DEFAULT_CONF}" "/tmp/default.conf" \
+    && sed -i "s#%%base_path%%#$(bashio::addon.ingress_entry)#g" /tmp/default.conf \
+    && sed -i "s|#include /tmp/default.conf|include /tmp/default.conf;|" /etc/nginx.conf \
+    || exit 1
 fi
 
-if [ -n "$ADDITIONAL_CONF" ]; then
-    sed -i "s|#include /share/additional.conf|include /share/$ADDITIONAL_CONF;|" /etc/nginx.conf
+if [ -n "${ADDITIONAL_CONF}" ]; then
+    cp "/share/${ADDITIONAL_CONF}" "/tmp/additional.conf" \
+        && sed -i "s#%%base_path%%#$(bashio::addon.ingress_entry)#g" /tmp/additional.conf \
+        && sed -i "s|#include /tmp/additional.conf|include /tmp/additional.conf;|" /etc/nginx.conf \
+        || exit 1
 fi
 
 # Prepare config file
