@@ -29,16 +29,21 @@ if bashio::config.true 'cloudflare'; then
     fi
 fi
 
+ingress_entry="$(bashio::addon.ingress_entry)"
+ingress_entry_escaped="${ingress_entry//\//\\/}"
+
 if [ -n "${DEFAULT_CONF}" ]; then
     cp "/share/${DEFAULT_CONF}" "/tmp/default.conf" \
-    && sed -i "s#%%base_path%%#$(bashio::addon.ingress_entry)#g" /tmp/default.conf \
+    && sed -i "s|%%base_path%%|${ingress_entry}|g" /tmp/default.conf \
+    && sed -i "s|%%base_path_escaped%%|${ingress_entry_escaped}|g" /tmp/default.conf \
     && sed -i "s|#include /tmp/default.conf;|include /tmp/default.conf;|" /etc/nginx.conf \
     || exit 1
 fi
 
 if [ -n "${ADDITIONAL_CONF}" ]; then
     cp "/share/${ADDITIONAL_CONF}" "/tmp/additional.conf" \
-        && sed -i "s#%%base_path%%#$(bashio::addon.ingress_entry)#g" /tmp/additional.conf \
+        && sed -i "s|%%base_path%%|${ingress_entry}|g" /tmp/additional.conf \
+        && sed -i "s|%%base_path_escaped%%|${ingress_entry_escaped}|g" /tmp/default.conf \
         && sed -i "s|#include /tmp/additional.conf;|include /tmp/additional.conf;|" /etc/nginx.conf \
         || exit 1
 fi
