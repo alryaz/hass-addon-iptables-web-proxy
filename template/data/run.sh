@@ -2,7 +2,8 @@
 set -e
 
 DESTINATION=$(bashio::config 'destination')
-ADD_CONFIG=$(bashio::config 'add_config')
+DEFAULT_CONF=$(bashio::config 'default_conf')
+ADDITIONAL_CONF=$(bashio::config 'additional_conf')
 
 if bashio::config.true 'cloudflare'; then
     sed -i "s|#include /data/cloudflare.conf;|include /data/cloudflare.conf;|" /etc/nginx.conf
@@ -28,8 +29,12 @@ if bashio::config.true 'cloudflare'; then
     fi
 fi
 
-if [ -n "$ADD_CONFIG" ]; then
-    sed -i "s|#include /share/add_config.conf|include /share/$ADD_CONFIG;|" /etc/nginx.conf
+if [ -n "$DEFAULT_CONF" ]; then
+    sed -i "s|#include /share/default.conf|include /share/$DEFAULT_CONF;|" /etc/nginx.conf
+fi
+
+if [ -n "$ADDITIONAL_CONF" ]; then
+    sed -i "s|#include /share/additional.conf|include /share/$ADDITIONAL_CONF;|" /etc/nginx.conf
 fi
 
 # Prepare config file
