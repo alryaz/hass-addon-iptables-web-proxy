@@ -1,45 +1,34 @@
 #!/usr/bin/env bashio
 set -e
 
-CONTAINER_SLUG=$(bashio::config 'container_slug')
-HTTP_PORT=$(bashio::config 'http_port')
-HTTPS_PORT=$(bashio::config 'https_port')
-RESOLVE_INTERVAL=$(bashio::config 'resolve_interval')
+DESTINATION=$(bashio::config 'destination')
 
-RETRY_SECONDS=5
+if bashio::config.true 'cloudflare'; then
+    sed -i "s|#include /data/cloudflare.conf;|include /data/cloudflare.conf;|" /etc/nginx.conf
+    # Generate cloudflare.conf
+    if ! bashio::fs.file_exists "${CLOUDFLARE_CONF}"; then
+        bashio::log.info "Creating 'cloudflare.conf' for real visitor IP address..."
+        echo "# Cloudflare IP addresses" > $CLOUDFLARE_CONF;
+        echo "" >> $CLOUDFLARE_CONF;
 
-bashio::log.info "Starting iptables updater..."
+        echo "# - IPv4" >> $CLOUDFLARE_CONF;
+        for i in $(curl https://www.cloudflare.com/ips-v4); do
+            echo "set_real_ip_from ${i};" >> $CLOUDFLARE_CONF;
+        done
 
-LAST_CONTAINER_IP=""
+        echo "" >> $CLOUDFLARE_CONF;
+        echo "# - IPv6" >> $CLOUDFLARE_CONF;
+        for i in $(curl https://www.cloudflare.com/ips-v6); do
+            echo "set_real_ip_from ${i};" >> $CLOUDFLARE_CONF;
+        done
 
-# External updater loop
-while true; do
-
-    # Internal resolution loop
-    while true; do
-        bashio::log.info "Resolving NGINX proxy IP address..."
-        CONTAINER_IP="$(dig +short "$CONTAINER_SLUG.local.hass.io")"
-        
-        if [ -z "$CONTAINER_IP" ]; then
-            bashio::log.error "Could not resolve NGINX proxy IP address, retrying in $RETRY_SECONDS seconds..."
-            sleep 5
-        else
-            bashio::log.info "Resolved IP address: $CONTAINER_IP"
-            break
-        fi
-    done
-
-    if [ -n "$LAST_CONTAINER_IP" ]; then
-        iptables -t nat -D PREROUTING -p tcp --dport "$HTTP_PORT" -j DNAT --to-destination "$LAST_CONTAINER_IP"
-        iptables -t nat -D PREROUTING -p tcp --dport "$HTTPS_PORT" -j DNAT --to-destination "$LAST_CONTAINER_IP"
+        echo "" >> $CLOUDFLARE_CONF;
+        echo "real_ip_header CF-Connecting-IP;" >> $CLOUDFLARE_CONF;
     fi
+fi
 
-    LAST_CONTAINER_IP="$CONTAINER_IP"
+# Prepare config file
+sed -i "s#%%DESTINATION%%#$DESTINATION#g" /etc/nginx.conf
 
-    iptables -t nat -A PREROUTING -p tcp --dport "$HTTP_PORT" -j DNAT --to-destination "$CONTAINER_IP"
-    iptables -t nat -A PREROUTING -p tcp --dport "$HTTPS_PORT" -j DNAT --to-destination "$CONTAINER_IP"
-
-    bashio::log.info "Added iptables rules, waiting $RESOLVE_INTERVAL seconds before next update..."
-
-    sleep "$RESOLVE_INTERVAL"
-done
+bashio::log.info "Running nginx..."
+exec nginx -c /etc/nginx.conf < /dev/null
