@@ -1,13 +1,21 @@
 #!/bin/sh
 
-PROXY_ID=1
+if [ -z "$1" ]; then
+    PROXY_ID=1
 
-while [ -d "proxy_$PROXY_ID" ]; do
-    PROXY_ID=$(($PROXY_ID + 1));
-done
+    while [ -d "proxy_$PROXY_ID" ]; do
+        PROXY_ID=$(($PROXY_ID + 1));
+    done
+else
+    PROXY_ID=$1
+fi
 
 TEMPLATE_DIR="template"
 PROXY_DIR="proxy_$PROXY_ID"
+
+if [ -d "$PROXY_DIR" ]; then
+    rm -rf "$PROXY_DIR"
+fi
 
 
 for f in $(cd "$TEMPLATE_DIR" && find . -type d); do

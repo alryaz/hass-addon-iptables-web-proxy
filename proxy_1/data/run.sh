@@ -1,7 +1,7 @@
 #!/usr/bin/env bashio
 set -e
 
-PROXY_CONTAINER=$(bashio::config 'container')
+CONTAINER_SLUG=$(bashio::config 'container_slug')
 HTTP_PORT=$(bashio::config 'http_port')
 HTTPS_PORT=$(bashio::config 'https_port')
 RESOLVE_INTERVAL=$(bashio::config 'resolve_interval')
@@ -18,7 +18,7 @@ while true; do
     # Internal resolution loop
     while true; do
         bashio::log.info "Resolving NGINX proxy IP address..."
-        CONTAINER_IP="$(dig +short "$PROXY_CONTAINER")"
+        CONTAINER_IP="$(dig +short "$CONTAINER_SLUG.local.hass.io")"
         
         if [ -z "$CONTAINER_IP" ]; then
             bashio::log.error "Could not resolve NGINX proxy IP address, retrying in $RETRY_SECONDS seconds..."

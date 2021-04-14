@@ -10,13 +10,13 @@
     "443/tcp": 443
   },
   "options": {
-    "container_domain": null,
+    "container_slug": "nginx_proxy",
     "http_port": 80,
     "https_port": 443,
     "resolve_interval": 30
   },
   "schema": {
-    "container_domain": "str",
+    "container_slug": "str",
     "http_port": "int",
     "https_port": "int",
     "resolve_interval": "int"
