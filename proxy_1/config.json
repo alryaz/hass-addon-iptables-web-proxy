@@ -9,10 +9,12 @@
     "80/tcp": null
   },
   "options": {
-    "container_slug": null
+    "destination": null,
+    "add_config": null
   },
   "schema": {
-    "destination": "str"
+    "destination": "str",
+    "add_config": "str?"
   },
   "ingress": true,
   "panel_icon": "mdi:printer-3d",
