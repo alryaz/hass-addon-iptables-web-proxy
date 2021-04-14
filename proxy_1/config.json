@@ -1,0 +1,27 @@
+{
+  "name": "iptables Home Assistant proxy (#1)",
+  "version": "1.0.0",
+  "slug": "iptables_web_proxy",
+  "description": "A web port proxy",
+  "url": "https://github.com/alryaz/hass-addon-iptables-web-proxy/tree/master/proxy_1",
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "ports": {
+    "80/tcp": null,
+    "443/tcp": 443
+  },
+  "options": {
+    "container_domain": null,
+    "http_port": 80,
+    "https_port": 443,
+    "resolve_interval": 30
+  },
+  "schema": {
+    "container_domain": "str",
+    "http_port": "int",
+    "https_port": "int",
+    "resolve_interval": "int"
+  },
+  "ingress": true,
+  "panel_icon": "mdi:printer-3d",
+  "panel_title": "Ingress Proxy 1"
+}
