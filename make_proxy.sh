@@ -25,7 +25,7 @@ done
 for f in $(cd "$TEMPLATE_DIR" && find . -type f); do
     NEW_FILENAME=`echo $PROXY_DIR/$f | sed 's/.template//'`
     cp "$TEMPLATE_DIR/$f" "$NEW_FILENAME"
-    sed -i 's/%ID%/'$PROXY_ID'/g' "$NEW_FILENAME"
+    sed -i 's/%%ID%%/'$PROXY_ID'/g' "$NEW_FILENAME"
 done
 
 echo "Created proxy with ID: $PROXY_ID"
