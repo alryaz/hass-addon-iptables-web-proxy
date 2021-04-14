@@ -1,0 +1,6 @@
+
+{
+  "name": "HASS.IO iptables proxy addons",
+  "url": "https://github.com/alryaz/hass-addon-iptables-web-proxy",
+  "maintainer": "Alexander \"alryaz\" Ryazanov <alryaz@xavux.com>"
+}
