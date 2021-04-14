@@ -8,6 +8,7 @@
   "ports": {
     "80/tcp": null
   },
+  "map": ["share"],
   "options": {
     "destination": null,
     "add_config": null
